@@ -19,7 +19,7 @@ Route::middleware(['content_type.check'])->group(function () {
     Route::prefix('/user')->group(function () {
         Route::post('/register', 'UserController@register');
         Route::post('/login', 'UserController@login');
-        Route::post('/refreshToken', 'UserController@refreshToken');
+        Route::get('/refreshToken', 'UserController@refreshToken');
     });
 
     Route::middleware(['access.check'])->group(function () {

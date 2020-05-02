@@ -63,12 +63,9 @@ class UserServices
         }
     }
 
-    public function refreshTokens($inRefreshToken) {
-        $refreshToken = $inRefreshToken;
-        $user = User::where('refresh_token',$refreshToken)->firstOrFail();
-        $decodeRefreshToken = base64_decode($refreshToken);
-        $explodeToken = explode("$", $decodeRefreshToken);
-        $tokens = $this->generatedTokens($explodeToken[1],$explodeToken[2]);
+    public function refreshTokens($inRefreshToken, $inIp, $inAgent) {
+        $user = User::where('refresh_token',$inRefreshToken)->firstOrFail();
+        $tokens = $this->generatedTokens($inIp,$inAgent);
         $user->access_token = $tokens->access_token;
         $user->refresh_token = $tokens->refresh_token;
         $user->save();

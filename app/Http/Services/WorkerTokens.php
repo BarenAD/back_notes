@@ -30,4 +30,15 @@ class WorkerTokens
         }
         return $user;
     }
+
+    public function explodeToken($token) {
+        $decodeToken = base64_decode($token);
+        $explodeToken = explode("$", $decodeToken);
+        return (object) [
+            'time' => $explodeToken[0],
+            'ip' => $explodeToken[1],
+            'agent' => $explodeToken[2],
+            'hash' => $explodeToken[3]
+        ];
+    }
 }

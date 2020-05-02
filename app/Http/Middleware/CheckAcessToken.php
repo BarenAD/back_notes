@@ -22,10 +22,15 @@ class CheckAcessToken
         if ($user === NULL) {
             return response()->json((object)['status' => 'Неверный токен'], 401);
         } else {
-            $decodeAccessToken = base64_decode($accessToken);
-            $explodeToken = explode("$", $decodeAccessToken);
-            if (time() - $explodeToken[0] > 300000) {
+            $explodeToken = WorkerTokensFacade::explodeToken($accessToken);
+            if (time() - $explodeToken->time > 300) {
                 return response()->json((object)['status' => 'Время жизни токена вышло'], 402);
+            }
+            if ($explodeToken->ip !== $request->getClientIp()) {
+                return response()->json((object)['status' => 'некорректный токен!'], 401);
+            }
+            if ($explodeToken->agent !== $request->userAgent()) {
+                return response()->json((object)['status' => 'некорректный токен!'], 401);
             }
         }
         Cache::put($accessToken, $user, 300);
