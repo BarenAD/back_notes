@@ -21,6 +21,8 @@ Route::middleware(['content_type.check'])->group(function () {
         Route::post('/refreshToken', 'UserController@refreshToken');
     });
     Route::middleware(['access.check'])->group(function () {
+        Route::prefix('/note')->group(function () {
 
+        });
     });
 });
