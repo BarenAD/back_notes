@@ -58,4 +58,19 @@ class UserServices
             }
         }
     }
+
+    public function refreshTokens($inRefreshToken) {
+        $refreshToken = $inRefreshToken;
+        if(Str::startsWith($refreshToken, 'Bearer ')) {
+            $refreshToken = Str::substr($refreshToken, 7);
+        }
+        $user = User::where('refresh_token',$refreshToken)->firstOrFail();
+        $decodeRefreshToken = base64_decode($refreshToken);
+        $explodeToken = explode("$", $decodeRefreshToken);
+        $tokens = $this->generatedTokens($explodeToken[1],$explodeToken[2]);
+        $user->access_token = $tokens->access_token;
+        $user->refresh_token = $tokens->refresh_token;
+        $user->save();
+        return (object) ['result' => $tokens, 'code' => 200];
+    }
 }

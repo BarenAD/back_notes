@@ -18,20 +18,19 @@ class UserController extends Controller
     }
 
     public function register(Request $request) {
-        if ($request->getContentType() == "json") {
-            $res = UserServicesFacade::registerUser(
-                $request->input('first_name'),
-                $request->input('last_name'),
-                $request->input('email'),
-                $request->input('password'),
-                $request->getClientIp(),
-                $request->userAgent()
-            );
-            return response()->json($res->result,$res->code);
-        } else {
-            return response()->json((object) [
-                "status" => "Не поддерживаемый тип данных!"
-            ], 415);
-        }
+        $res = UserServicesFacade::registerUser(
+            $request->input('first_name'),
+            $request->input('last_name'),
+            $request->input('email'),
+            $request->input('password'),
+            $request->getClientIp(),
+            $request->userAgent()
+        );
+        return response()->json($res->result,$res->code);
+    }
+
+    public function refreshToken(Request $request) {
+        $res = UserServicesFacade::refreshTokens($request->input('refresh_token'));
+        return response()->json($res->result,$res->code);
     }
 }
