@@ -23,6 +23,7 @@ Route::middleware(['content_type.check'])->group(function () {
     Route::middleware(['access.check'])->group(function () {
         Route::prefix('/note')->group(function () {
             Route::post('/create', 'NoteController@createNewNote');
+            Route::post('/delete', 'NoteController@deleteNote');
         });
     });
 });

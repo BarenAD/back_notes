@@ -26,19 +26,23 @@ class UserServices
     }
 
     public function registerUser($firstName, $lastName, $email, $password, $clientIP, $clientAgent) {
-        if (User::where('email',$email)->first() === NULL) {
-            $tokens = $this->generatedTokens($clientIP, $clientAgent);
-            $result = User::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'password' => Hash::make($password),
-                'access_token' => $tokens->access_token,
-                'refresh_token' => $tokens->refresh_token
-            ]);
-            return (object) ['result' => $tokens, 'code' => 200];
+        if (isset($firstName) && isset($lastName) && isset($email) && isset($password)  && isset($clientIP)  && isset($clientAgent)) {
+            if (User::where('email',$email)->first() === NULL) {
+                $tokens = $this->generatedTokens($clientIP, $clientAgent);
+                $result = User::create([
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'password' => Hash::make($password),
+                    'access_token' => $tokens->access_token,
+                    'refresh_token' => $tokens->refresh_token
+                ]);
+                return (object) ['result' => $tokens, 'code' => 200];
+            } else {
+                return (object) ['result' => 'Пользователь с таким Email уже существует!', 'code' => 409];
+            }
         } else {
-            return (object) ['result' => 'Пользователь с таким Email уже существует!', 'code' => 409];
+            return (object) ['result' => 'Не все параметры были присланы', 'code' => 500];
         }
     }
 
