@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\WorkerTokensFacade;
 use Illuminate\Http\Request;
 use App\Facades\UserServicesFacade;
 
@@ -30,7 +31,9 @@ class UserController extends Controller
     }
 
     public function refreshToken(Request $request) {
-        $res = UserServicesFacade::refreshTokens($request->input('refresh_token'));
+        $res = UserServicesFacade::refreshTokens(
+            WorkerTokensFacade::parseBearerToToken($request->header('Authorization'))
+        );
         return response()->json($res->result,$res->code);
     }
 }

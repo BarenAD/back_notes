@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Cache;
+use App\Facades\WorkerTokensFacade;
 
 class CheckAcessToken
 {
@@ -15,11 +17,8 @@ class CheckAcessToken
      */
     public function handle($request, Closure $next)
     {
-        $accessToken = $request->header('Authorization');
-        if(Str::startsWith($accessToken, 'Bearer ')) {
-            $accessToken = Str::substr($accessToken, 7);
-        }
-        $user = User::where('access_token',$accessToken)->first();
+        $accessToken = WorkerTokensFacade::parseBearerToToken($request->header('Authorization'));
+        $user = WorkerTokensFacade::getUserByToken($accessToken);
         if ($user === NULL) {
             return response()->json((object)['status' => 'Неверный токен'], 401);
         } else {
@@ -29,6 +28,7 @@ class CheckAcessToken
                 return response()->json((object)['status' => 'Время жизни токена вышло'], 402);
             }
         }
+        Cache::put($accessToken, $user, 300);
         return $next($request, $user);
     }
 }

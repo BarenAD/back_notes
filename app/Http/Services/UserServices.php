@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserServices
 {
-    public function generatedTokens($userIP, $agent) {
+    private function generatedTokens($userIP, $agent) {
         $stringBaseToken = "" . time() . "$" . $userIP . "$" . $agent . "$";
         $accessToken = base64_encode($stringBaseToken . Str::random(60));
         $refreshToken = base64_encode($stringBaseToken . Str::random(60));
@@ -61,9 +61,6 @@ class UserServices
 
     public function refreshTokens($inRefreshToken) {
         $refreshToken = $inRefreshToken;
-        if(Str::startsWith($refreshToken, 'Bearer ')) {
-            $refreshToken = Str::substr($refreshToken, 7);
-        }
         $user = User::where('refresh_token',$refreshToken)->firstOrFail();
         $decodeRefreshToken = base64_decode($refreshToken);
         $explodeToken = explode("$", $decodeRefreshToken);
