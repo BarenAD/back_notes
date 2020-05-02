@@ -31,7 +31,7 @@ class UserController extends Controller
     }
 
     public function refreshToken(Request $request) {
-        $token = $request->header('Authorization');
+        $token = WorkerTokensFacade::parseBearerToToken($request->header('Authorization'));
         $explodeToken =  WorkerTokensFacade::explodeToken($token);
         if (time() - $explodeToken->time > 129600) {
             return response()->json((object)['status' => 'Время жизни токена вышло'], 409);
@@ -43,7 +43,7 @@ class UserController extends Controller
             return response()->json((object)['status' => 'некорректный токен!'], 401);
         }
         $res = UserServicesFacade::refreshTokens(
-            WorkerTokensFacade::parseBearerToToken($token),
+            $token,
             $explodeToken->ip,
             $explodeToken->agent
         );

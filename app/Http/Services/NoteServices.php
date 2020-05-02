@@ -12,11 +12,13 @@ use App\Note;
 
 class NoteServices
 {
-    private function getAnAvailableNote($idNote) {
+    private function getAnAvailableNote($idNote, $idUser) {
         $note = Note::where('id',$idNote)->first();
         if (isset($note)) {
-            if (time() - $note->blocked > 300000) {
-                return $note;
+            if ($note->user_id === $idUser) {
+                if (time() - $note->blocked > 300) {
+                    return $note;
+                }
             }
         }
         return null;
@@ -41,7 +43,7 @@ class NoteServices
                 if ($note->user_id === $idUser) {
                     $note->blocked = 0;
                     $note->save();
-                    return (object) ['result' => $note, 'code' => 200];
+                    return (object)['result' => $note, 'code' => 200];
                 }
             }
             return (object) ['result' => 'fail', 'code' => 500];
@@ -51,13 +53,11 @@ class NoteServices
 
     public function startСhanges($idUser, $idNote) {
         if (isset($idNote) && isset($idUser)) {
-            $note = $this->getAnAvailableNote($idNote);
+            $note = $this->getAnAvailableNote($idNote,$idUser);
             if (isset($note)) {
-                if ($note->user_id === $idUser) {
-                    $note->blocked = time();
-                    $note->save();
-                    return (object)['result' => $note, 'code' => 200];
-                }
+                $note->blocked = time();
+                $note->save();
+                return (object)['result' => $note, 'code' => 200];
             }
             return (object) ['result' => 'fail', 'code' => 500];
         }
@@ -66,14 +66,12 @@ class NoteServices
 
     public function changeNote($idUser, $idNote, $newBodyNode) {
         if (isset($idNote) && isset($newBodyNode) && isset($idUser)) {
-            $note = $this->getAnAvailableNote($idNote);
+            $note = $this->getAnAvailableNote($idNote,$idUser);
             if (isset($note)) {
-                if ($note->user_id === $idUser) {
-                    $note->body = $newBodyNode;
-                    $note->blocked = 0;
-                    $note->save();
-                    return (object)['result' => $note, 'code' => 200];
-                }
+                $note->body = $newBodyNode;
+                $note->blocked = 0;
+                $note->save();
+                return (object)['result' => $note, 'code' => 200];
             }
             return (object) ['result' => 'fail', 'code' => 500];
         }
@@ -82,13 +80,11 @@ class NoteServices
 
     public function deleteNote($idUser, $idNote) {
         if (isset($idNote) && isset($idUser)) {
-            $note = $this->getAnAvailableNote($idNote);
+            $note = $this->getAnAvailableNote($idNote,$idUser);
             if (isset($note)) {
-                if ($note->user_id === $idUser) {
-                    $result = Note::where('id', $idNote)->delete();
-                    if ($result > 0) {
-                        return (object)['result' => 'success', 'code' => 200];
-                    }
+                $result = Note::where('id', $idNote)->delete();
+                if ($result > 0) {
+                    return (object)['result' => 'success', 'code' => 200];
                 }
             }
             return (object) ['result' => 'fail', 'code' => 500];
