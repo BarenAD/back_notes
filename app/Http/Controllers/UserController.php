@@ -8,7 +8,13 @@ use App\Facades\UserServicesFacade;
 class UserController extends Controller
 {
     public function login(Request $request) {
-
+        $res = UserServicesFacade::loginUser(
+            $request->input('email'),
+            $request->input('password'),
+            $request->getClientIp(),
+            $request->userAgent()
+        );
+        return response()->json($res->result,$res->code);
     }
 
     public function register(Request $request) {

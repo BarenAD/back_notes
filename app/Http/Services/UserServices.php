@@ -41,4 +41,21 @@ class UserServices
             return (object) ['result' => 'Пользователь с таким Email уже существует!', 'code' => 409];
         }
     }
+
+    public function loginUser($email, $password, $clientIP, $clientAgent) {
+        $user = User::where('email',$email)->first();
+        if ($user === NULL) {
+            return (object) ['result' => 'Пользователя с таким Email не существует!', 'code' => 404];
+        } else {
+            if (Hash::check($password, $user->password)) {
+                $tokens = $this->generatedTokens($clientIP, $clientAgent);
+                $user->access_token = $tokens->access_token;
+                $user->refresh_token = $tokens->refresh_token;
+                $user->save();
+                return (object) ['result' => $tokens, 'code' => 200];
+            } else {
+                return (object) ['result' => 'Неверный пароль!', 'code' => 401];
+            }
+        }
+    }
 }
