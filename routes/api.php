@@ -15,15 +15,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['content_type.check'])->group(function () {
+
     Route::prefix('/user')->group(function () {
         Route::post('/register', 'UserController@register');
         Route::post('/login', 'UserController@login');
         Route::post('/refreshToken', 'UserController@refreshToken');
     });
+
     Route::middleware(['access.check'])->group(function () {
+
         Route::prefix('/note')->group(function () {
+            Route::get('/getAll', 'NoteController@getAllNotes');
             Route::post('/create', 'NoteController@createNewNote');
             Route::post('/delete', 'NoteController@deleteNote');
+            Route::prefix('/change')->group(function () {
+                Route::post('/start', 'NoteController@startСhanges');
+                Route::post('/stop', 'NoteController@stopChanges');
+                Route::post('/change', 'NoteController@changeNote');
+            });
         });
     });
 });

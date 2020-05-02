@@ -8,37 +8,101 @@
 
 namespace App\Http\Services;
 
-use App\Facades\WorkerTokensFacade;
 use App\Note;
 
 class NoteServices
 {
-    public function createNewNote($accessToken, $text_note) {
-        if (isset($text_note) && strlen($text_note) > 5) {
-            $user = WorkerTokensFacade::getUserByToken($accessToken);
+    private function getAnAvailableNote($idNote) {
+        $note = Note::where('id',$idNote)->first();
+        if (isset($note)) {
+            if (time() - $note->blocked > 300000) {
+                return $note;
+            }
+        }
+        return null;
+    }
+
+    public function createNewNote($idUser, $text_note) {
+        if (isset($text_note) && strlen($text_note) > 5 && isset($idUser)) {
             $result = Note::create([
                 'body' => $text_note,
                 'blocked' => 0,
-                'user_id' => $user->id
+                'user_id' => $idUser
             ]);
             return (object) ['result' => $result, 'code' => 200];
         }
         return (object) ['result' => 'Не прислан текст или его длина меньше 5 символов', 'code' => 500];
     }
 
-    public function deleteNote($idNote) {
-        if (isset($idNote)) {
+    public function stopChanges($idUser, $idNote) {
+        if (isset($idNote) && isset($idUser)) {
             $note = Note::where('id',$idNote)->first();
             if (isset($note)) {
-                if (time() - $note->blocked > 300000) {
-                    $result = Note::where('id',$idNote)->delete();
+                if ($note->user_id === $idUser) {
+                    $note->blocked = 0;
+                    $note->save();
+                    return (object) ['result' => $note, 'code' => 200];
+                }
+            }
+            return (object) ['result' => 'fail', 'code' => 500];
+        }
+        return (object) ['result' => 'Не прислан id', 'code' => 500];
+    }
+
+    public function startСhanges($idUser, $idNote) {
+        if (isset($idNote) && isset($idUser)) {
+            $note = $this->getAnAvailableNote($idNote);
+            if (isset($note)) {
+                if ($note->user_id === $idUser) {
+                    $note->blocked = time();
+                    $note->save();
+                    return (object)['result' => $note, 'code' => 200];
+                }
+            }
+            return (object) ['result' => 'fail', 'code' => 500];
+        }
+        return (object) ['result' => 'Не прислан id', 'code' => 500];
+    }
+
+    public function changeNote($idUser, $idNote, $newBodyNode) {
+        if (isset($idNote) && isset($newBodyNode) && isset($idUser)) {
+            $note = $this->getAnAvailableNote($idNote);
+            if (isset($note)) {
+                if ($note->user_id === $idUser) {
+                    $note->body = $newBodyNode;
+                    $note->blocked = 0;
+                    $note->save();
+                    return (object)['result' => $note, 'code' => 200];
+                }
+            }
+            return (object) ['result' => 'fail', 'code' => 500];
+        }
+        return (object) ['result' => 'Не прислан id или текст', 'code' => 500];
+    }
+
+    public function deleteNote($idUser, $idNote) {
+        if (isset($idNote) && isset($idUser)) {
+            $note = $this->getAnAvailableNote($idNote);
+            if (isset($note)) {
+                if ($note->user_id === $idUser) {
+                    $result = Note::where('id', $idNote)->delete();
                     if ($result > 0) {
-                        return (object) ['result' => 'success', 'code' => 200];
+                        return (object)['result' => 'success', 'code' => 200];
                     }
                 }
             }
             return (object) ['result' => 'fail', 'code' => 500];
         }
         return (object) ['result' => 'Не прислан id', 'code' => 500];
+    }
+
+    public function getAllNotes($idUser) {
+        if (isset($idUser)) {
+            return (object)[
+                'result' => $note = Note::where('user_id',$idUser)->cursor(),
+                'code' => 200
+            ];
+        }
+        return (object)['result' => 'не авторизован', 'code' => 401];
     }
 }
