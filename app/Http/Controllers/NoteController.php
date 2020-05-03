@@ -73,4 +73,13 @@ class NoteController extends Controller
         return response()->json($res->result,$res->code);
     }
 
+    public function completedNote(Request $request)
+    {
+        $user = $this->getUser($request->header('Authorization'));
+        $res = NoteServicesFacade::completedNote(
+            $user->id,
+            (int)  $request->input('id')
+        );
+        return response()->json($res->result,$res->code);
+    }
 }

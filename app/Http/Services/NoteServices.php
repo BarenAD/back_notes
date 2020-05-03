@@ -15,7 +15,7 @@ class NoteServices
     private function getAnAvailableNote($idNote, $idUser) {
         $note = Note::where('id',$idNote)->first();
         if (isset($note)) {
-            if ($note->user_id === $idUser) {
+            if ($note->user_id === $idUser && $note->status == false) {
                 if (time() - $note->blocked > 300) {
                     return $note;
                 }
@@ -29,7 +29,8 @@ class NoteServices
             $result = Note::create([
                 'body' => $text_note,
                 'blocked' => 0,
-                'user_id' => $idUser
+                'user_id' => $idUser,
+                'status' => false
             ]);
             return (object) ['result' => $result, 'code' => 200];
         }
@@ -100,5 +101,19 @@ class NoteServices
             ];
         }
         return (object)['result' => 'не авторизован', 'code' => 401];
+    }
+
+    public function completedNote($idUser, $idNote) {
+        if (isset($idNote) && isset($idUser)) {
+            $note = $this->getAnAvailableNote($idNote,$idUser);
+            if (isset($note)) {
+                $note->status = true;
+                $note->blocked = 0;
+                $note->save();
+                return (object)['result' => $note, 'code' => 200];
+            }
+            return (object) ['result' => 'fail', 'code' => 500];
+        }
+        return (object) ['result' => 'Не прислан id или текст', 'code' => 500];
     }
 }

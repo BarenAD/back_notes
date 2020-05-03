@@ -17,6 +17,7 @@ class CreateNotesTable extends Migration
             $table->increments('id');
             $table->string('body');
             $table->integer('blocked');
+            $table->boolean('status');
             $table->timestamps();
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')

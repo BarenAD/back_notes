@@ -32,6 +32,7 @@ Route::middleware(['content_type.check'])->group(function () {
                 Route::post('/start', 'NoteController@startСhanges');
                 Route::post('/stop', 'NoteController@stopChanges');
                 Route::post('/change', 'NoteController@changeNote');
+                Route::post('/completed', 'NoteController@completedNote');
             });
         });
     });
