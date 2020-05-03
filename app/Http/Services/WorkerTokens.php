@@ -26,7 +26,7 @@ class WorkerTokens
         if (Cache::has($accessToken)) {
             $user = Cache::get($accessToken);
         } else {
-            $user = User::where('access_token',$accessToken)->firstOrFail();
+            $user = User::where('access_token',$accessToken)->first();
         }
         return $user;
     }
