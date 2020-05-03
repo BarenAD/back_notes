@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 class UserServices
 {
     private function generatedTokens($userIP, $agent) {
-        $stringBaseToken = "" . time() . "$" . $userIP . "$" . substr($agent, 0, 60) . "$";
+        $stringBaseToken = "" . time() . "$" . $userIP . "$" . $agent . "$";
         $accessToken = base64_encode($stringBaseToken . Str::random(40));
         $refreshToken = base64_encode($stringBaseToken . Str::random(40));
         return (object) [

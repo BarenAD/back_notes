@@ -29,7 +29,7 @@ class CheckAcessToken
             if ($explodeToken->ip !== $request->getClientIp()) {
                 return response()->json((object)['status' => 'некорректный токен!'], 401);
             }
-            if ($explodeToken->agent !== $request->userAgent()) {
+            if ($explodeToken->agent !== WorkerTokensFacade::prepareUserAgent($request->userAgent())) {
                 return response()->json((object)['status' => 'некорректный токен!'], 401);
             }
         }

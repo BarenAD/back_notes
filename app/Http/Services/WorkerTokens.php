@@ -21,6 +21,10 @@ class WorkerTokens
         return $token;
     }
 
+    public function prepareUserAgent($UserAgent) {
+        return substr($UserAgent, 0, 60);
+    }
+
     public function getUserByToken($accessToken) {
         $user = null;
         if (Cache::has($accessToken)) {

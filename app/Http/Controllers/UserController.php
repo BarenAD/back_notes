@@ -13,7 +13,7 @@ class UserController extends Controller
             $request->input('email'),
             $request->input('password'),
             $request->getClientIp(),
-            $request->userAgent()
+            WorkerTokensFacade::prepareUserAgent($request->userAgent())
         );
         return response()->json($res->result,$res->code);
     }
@@ -25,7 +25,7 @@ class UserController extends Controller
             $request->input('email'),
             $request->input('password'),
             $request->getClientIp(),
-            $request->userAgent()
+            WorkerTokensFacade::prepareUserAgent($request->userAgent())
         );
         return response()->json($res->result,$res->code);
     }
@@ -39,7 +39,7 @@ class UserController extends Controller
         if ($explodeToken->ip !== $request->getClientIp()) {
             return response()->json((object)['status' => 'некорректный токен!'], 401);
         }
-        if ($explodeToken->agent !== $request->userAgent()) {
+        if ($explodeToken->agent !== WorkerTokensFacade::prepareUserAgent($request->userAgent())) {
             return response()->json((object)['status' => 'некорректный токен!'], 401);
         }
         $res = UserServicesFacade::refreshTokens(
