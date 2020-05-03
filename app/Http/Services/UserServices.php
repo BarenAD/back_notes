@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Hash;
 class UserServices
 {
     private function generatedTokens($userIP, $agent) {
-        $stringBaseToken = "" . time() . "$" . $userIP . "$" . $agent . "$";
-        $accessToken = base64_encode($stringBaseToken . Str::random(60));
-        $refreshToken = base64_encode($stringBaseToken . Str::random(60));
+        $stringBaseToken = "" . time() . "$" . $userIP . "$" . substr($agent, 0, 60) . "$";
+        $accessToken = base64_encode($stringBaseToken . Str::random(40));
+        $refreshToken = base64_encode($stringBaseToken . Str::random(40));
         return (object) [
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken
@@ -56,7 +56,13 @@ class UserServices
                 $user->access_token = $tokens->access_token;
                 $user->refresh_token = $tokens->refresh_token;
                 $user->save();
-                return (object) ['result' => $tokens, 'code' => 200];
+                $result = [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'access_token' => $tokens->access_token,
+                    'refresh_token' => $tokens->refresh_token
+                ];
+                return (object) ['result' => $result, 'code' => 200];
             } else {
                 return (object) ['result' => 'Неверный пароль!', 'code' => 401];
             }
