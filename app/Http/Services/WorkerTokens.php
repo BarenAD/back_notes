@@ -35,6 +35,14 @@ class WorkerTokens
         return $user;
     }
 
+    public function deleteUserFromCacheByToken($accessToken) {
+        if (isset($accessToken)) {
+            if (Cache::has($accessToken)) {
+                Cache::forget($accessToken);
+            }
+        }
+    }
+
     public function explodeToken($token) {
         $decodeToken = base64_decode($token);
         $explodeToken = explode("$", $decodeToken);

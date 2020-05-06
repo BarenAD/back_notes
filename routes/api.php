@@ -23,6 +23,7 @@ Route::middleware(['content_type.check'])->group(function () {
     });
 
     Route::middleware(['access.check'])->group(function () {
+        Route::get('/user/logout', 'UserController@logout');
 
         Route::prefix('/note')->group(function () {
             Route::get('/getAll', 'NoteController@getAllNotes');

@@ -18,6 +18,18 @@ class UserController extends Controller
         return response()->json($res->result,$res->code);
     }
 
+    public function logout(Request $request) {
+        $accessToken = WorkerTokensFacade::parseBearerToToken($request->header('Authorization'));
+        $user = $this->getUser(
+            WorkerTokensFacade::getUserByToken($accessToken)
+        );
+        $user->access_token = null;
+        $user->refresh_token = null;
+        $user->save();
+        WorkerTokensFacade::deleteUserFromCacheByToken($accessToken);
+        return response()->json("successful",200);
+    }
+
     public function register(Request $request) {
         $res = UserServicesFacade::registerUser(
             $request->input('first_name'),

@@ -9,6 +9,7 @@
 namespace App\Http\Services;
 
 
+use App\Facades\WorkerTokensFacade;
 use Illuminate\Support\Str;
 use App\User;
 use Illuminate\Support\Facades\Hash;
@@ -53,6 +54,7 @@ class UserServices
         } else {
             if (Hash::check($password, $user->password)) {
                 $tokens = $this->generatedTokens($clientIP, $clientAgent);
+                WorkerTokensFacade::deleteUserFromCacheByToken($user->access_token);
                 $user->access_token = $tokens->access_token;
                 $user->refresh_token = $tokens->refresh_token;
                 $user->save();
@@ -71,10 +73,12 @@ class UserServices
 
     public function refreshTokens($inRefreshToken, $inIp, $inAgent) {
         $user = User::where('refresh_token',$inRefreshToken)->firstOrFail();
+        WorkerTokensFacade::deleteUserFromCacheByToken($user->access_token);
         $tokens = $this->generatedTokens($inIp,$inAgent);
         $user->access_token = $tokens->access_token;
         $user->refresh_token = $tokens->refresh_token;
         $user->save();
+
         return (object) ['result' => $tokens, 'code' => 200];
     }
 }
