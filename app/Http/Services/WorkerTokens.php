@@ -35,6 +35,10 @@ class WorkerTokens
         return $user;
     }
 
+    public function putUserFromCacheByToken($accessToken, $user) {
+        Cache::put($accessToken, $user, 300);
+    }
+
     public function deleteUserFromCacheByToken($accessToken) {
         if (isset($accessToken)) {
             if (Cache::has($accessToken)) {

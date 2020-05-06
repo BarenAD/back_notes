@@ -38,6 +38,7 @@ class UserServices
                     'access_token' => $tokens->access_token,
                     'refresh_token' => $tokens->refresh_token
                 ]);
+                WorkerTokensFacade::putUserFromCacheByToken($tokens->access_token, $result);
                 return (object) ['result' => $tokens, 'code' => 200];
             } else {
                 return (object) ['result' => 'Пользователь с таким Email уже существует!', 'code' => 409];
@@ -64,6 +65,7 @@ class UserServices
                     'access_token' => $tokens->access_token,
                     'refresh_token' => $tokens->refresh_token
                 ];
+                WorkerTokensFacade::putUserFromCacheByToken($tokens->access_token, $user);
                 return (object) ['result' => $result, 'code' => 200];
             } else {
                 return (object) ['result' => 'Неверный пароль!', 'code' => 401];
@@ -78,7 +80,7 @@ class UserServices
         $user->access_token = $tokens->access_token;
         $user->refresh_token = $tokens->refresh_token;
         $user->save();
-
+        WorkerTokensFacade::putUserFromCacheByToken($tokens->access_token, $user);
         return (object) ['result' => $tokens, 'code' => 200];
     }
 }

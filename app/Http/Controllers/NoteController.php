@@ -70,7 +70,7 @@ class NoteController extends Controller
     {
         $user = $this->getUser($request->header('Authorization'));
         $res = NoteServicesFacade::getAllNotes($user->id);
-        return response()->json($res->result,$res->code);
+        return response()->json($res->result,$res->code)->header('X-My-Custom-Header', 'CustomValue');
     }
 
     public function completedNote(Request $request)

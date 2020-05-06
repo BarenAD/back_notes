@@ -33,7 +33,7 @@ class CheckAcessToken
                 return response()->json((object)['status' => 'некорректный токен!'], 401);
             }
         }
-        Cache::put($accessToken, $user, 300);
+        WorkerTokensFacade::putUserFromCacheByToken($accessToken, $user);
         return $next($request, $user);
     }
 }

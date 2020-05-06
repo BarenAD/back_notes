@@ -22,7 +22,7 @@ class CheckContentType
             ], 415);
         }
         $responseNext = $next($request);
-        $responseNext->headers->set('x-time', time());
+        $responseNext->header('expires', time());
         return $responseNext;
     }
 }
