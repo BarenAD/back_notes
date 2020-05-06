@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use function PHPSTORM_META\override;
 
 class CheckContentType
 {
@@ -20,6 +21,8 @@ class CheckContentType
                 "status" => "Не поддерживаемый тип данных!"
             ], 415);
         }
-        return $next($request);
+        $responseNext = $next($request);
+        $responseNext->headers->set('x-time', time());
+        return $responseNext;
     }
 }
